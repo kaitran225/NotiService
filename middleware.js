@@ -10,7 +10,15 @@ const authenticateToken = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, jwtSecret);
+    // Verify and decode the token
+    const decoded = jwt.verify(token, jwtSecret);
+    
+    // Store user info from token
+    req.user = {
+      uid: decoded.uid,
+      isManager: decoded.isManager === true
+    };
+    
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Invalid token' });

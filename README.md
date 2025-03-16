@@ -6,6 +6,7 @@ A minimal Node.js microservice that extracts user ID from JWT tokens and queries
 
 - JWT token verification
 - Notification retrieval by user ID
+- Role-based access control (manager role)
 - Ultra-lightweight (10-15MB RAM usage)
 - Extreme memory optimization
 - Production-ready
@@ -67,13 +68,21 @@ Requires JWT token with uid claim:
 
 - **Get notifications**
   - `GET /api/notifications`
-  - Returns up to 20 most recent notifications
+  - Returns up to 20 most recent notifications for the authenticated user
+  - Optional query parameter: `userId` (only for managers)
+  - Example: `GET /api/notifications?userId=123`
 
 ### Health Check
 
 - **Ping**
   - `GET /ping`
   - Returns: `{ "message": "pong" }`
+
+## JWT Token Requirements
+
+The JWT token must include:
+- `uid`: User ID for authentication
+- `isManager` (optional): Boolean flag indicating if user has manager role
 
 ## Existing Database Schema
 
