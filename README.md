@@ -9,7 +9,7 @@ A minimal Node.js microservice that extracts user ID from JWT tokens and queries
 - Role-based access control (manager role)
 - Ultra-lightweight (10-15MB RAM usage)
 - Extreme memory optimization
-- Production-ready
+- Production-ready for Railway deployment
 
 ## Prerequisites
 
@@ -67,7 +67,7 @@ Requires JWT token with uid claim:
 `Authorization: Bearer your_jwt_token`
 
 - **Get notifications**
-  - `GET /api/notifications`
+  - `GET /api/notifications` or `GET /notifications`
   - Returns up to 20 most recent notifications for the authenticated user
   - Optional query parameter: `userId` (only for managers)
   - Example: `GET /api/notifications?userId=123`
@@ -80,9 +80,23 @@ Requires JWT token with uid claim:
 
 ## JWT Token Requirements
 
-The JWT token must include:
-- `uid`: User ID for authentication
-- `isManager` (optional): Boolean flag indicating if user has manager role
+The JWT token must include one of the following:
+- `uid`: User ID for authentication (or `sub` as fallback)
+- `role`: Should be 'ROLE_MANAGER' for manager access
+
+Example token payload:
+```json
+{
+  "uid": "UID001",
+  "role": "ROLE_MANAGER",
+  "isVerified": true,
+  "isActive": true,
+  "email": "admin@example.com",
+  "sub": "JY2NyRbbjOosr7bDzQywJG7-BhQh29g-w6NQQoyr2k8",
+  "iat": 1742140892,
+  "exp": 1742227292
+}
+```
 
 ## Existing Database Schema
 
@@ -118,6 +132,14 @@ public class Notifications {
     // Additional fields and relationships...
 }
 ```
+
+## Railway Deployment
+
+This service is configured to run on Railway:
+
+1. It automatically uses the PORT environment variable set by Railway
+2. It binds to 0.0.0.0 to accept connections from Railway's proxy
+3. It includes proper error handling for connection issues
 
 ## Docker Support
 

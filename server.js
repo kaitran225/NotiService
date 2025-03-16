@@ -40,9 +40,12 @@ async function startServer() {
     // Test database connection
     await testConnection();
     
+    // Use PORT from environment (Railway sets this)
+    const PORT = process.env.PORT || port || 8080;
+    
     // Start listening
-    const server = app.listen(port, () => {
-      console.log(`Running on port ${port}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Running on port ${PORT}`);
     });
     
     // Handle graceful shutdown

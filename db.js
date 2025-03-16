@@ -6,7 +6,7 @@ const pool = mysql.createPool({
   ...dbConfig,
   connectionLimit: 2,
   queueLimit: 5,
-  enableKeepAlive: false
+  enableKeepAlive: true,
 });
 
 // Minimal connection test

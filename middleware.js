@@ -15,8 +15,8 @@ const authenticateToken = (req, res, next) => {
     
     // Store user info from token
     req.user = {
-      uid: decoded.uid,
-      isManager: decoded.isManager === true
+      uid: decoded.uid || decoded.sub,
+      MANAGER: decoded.role === 'ROLE_MANAGER' || decoded.role?.includes('MANAGER')
     };
     
     next();

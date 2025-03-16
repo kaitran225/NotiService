@@ -4,7 +4,7 @@ const { authenticateToken } = require('./middleware');
 
 const router = express.Router();
 
-// Get notifications for authenticated user or specified userId (if authorized)
+// Single optimized endpoint for notifications with optional userId
 router.get('/api/notifications', authenticateToken, async (req, res) => {
   try {
     // Get the requesting user's ID from token
@@ -14,24 +14,18 @@ router.get('/api/notifications', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'No uid in token' });
     }
     
-    // Check if a specific userId was requested
+    // Check if a specific userId was requested (optional parameter)
     const requestedUserId = req.query.userId;
     
-    // Determine which userId to use
-    let finalUserId = tokenUid;
+    // Use the requested userId if provided, otherwise use the token's uid
+    const finalUserId = requestedUserId || tokenUid;
     
-    // If a specific userId was requested and it's different from the token's uid
+    // If trying to access another user's notifications, check for manager role
     if (requestedUserId && requestedUserId !== tokenUid) {
-      // Check if user has manager role (isManager claim in token)
       const isManager = req.user.MANAGER === true;
-      
-      // Only managers can view other users' notifications
       if (!isManager) {
-        return res.status(403).json({ error: 'Not authorized to view other users notifications' });
+        return res.status(403).json({ error: 'Not authorized' });
       }
-      
-      // If we get here, the user is a manager and can view the requested userId's notifications
-      finalUserId = requestedUserId;
     }
     
     // Query with limit to reduce memory usage
@@ -44,6 +38,12 @@ router.get('/api/notifications', authenticateToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Query failed' });
   }
+});
+
+// Alias for the root path (redirects to /api/notifications)
+router.get('/notifications', (req, res) => {
+  const url = `/api/notifications${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
+  res.redirect(url);
 });
 
 module.exports = router; 
