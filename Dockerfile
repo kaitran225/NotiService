@@ -14,7 +14,7 @@ RUN npm install --production --no-package-lock && \
     npm cache clean --force
 
 # Expose the port
-EXPOSE 8080
+EXPOSE 3000
 
 # Run with minimal memory
-CMD ["node", "--optimize_for_size", "--max_old_space_size=2", "noti-service.js"] 
+CMD ["node", "--optimize_for_size", "--max_old_space_size=10", "noti-service.js"] 
