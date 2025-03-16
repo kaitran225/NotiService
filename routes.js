@@ -23,7 +23,7 @@ router.get('/api/notifications', authenticateToken, async (req, res) => {
     // If a specific userId was requested and it's different from the token's uid
     if (requestedUserId && requestedUserId !== tokenUid) {
       // Check if user has manager role (isManager claim in token)
-      const isManager = req.user.isManager === true;
+      const isManager = req.user.MANAGER === true;
       
       // Only managers can view other users' notifications
       if (!isManager) {
