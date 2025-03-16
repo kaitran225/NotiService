@@ -68,14 +68,31 @@ app.get('/api/notifications', auth, async (req, res) => {
     }
     
     const [notifications] = await pool.query(
-      'SELECT NotificationID, Title, Message, Type, IsRead, CreatedAt FROM Notifications WHERE UserID = ? ORDER BY CreatedAt DESC LIMIT 20',
+      'SELECT NotificationID as id, Title as title, Message as message, Type as type, IsRead as isRead, CreatedAt as createdAt, UserID as userID FROM Notifications WHERE UserID = ? ORDER BY CreatedAt DESC LIMIT 20',
       [finalUserId]
     );
     
-    res.json(notifications);
+    // Format the response to match the sample
+    const formattedNotifications = notifications.map(notification => ({
+      id: notification.id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      createdAt: notification.createdAt,
+      isRead: Boolean(notification.isRead),
+      userID: notification.userID
+    }));
+    
+    res.json(formattedNotifications);
   } catch (e) {
     res.status(500).json({e:'Query failed'});
   }
+});
+
+// Redirect /notifications to /api/notifications
+app.get('/notifications', (req, res) => {
+  const url = `/api/notifications${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
+  res.redirect(url);
 });
 
 // Start server

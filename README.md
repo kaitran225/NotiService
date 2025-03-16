@@ -35,12 +35,26 @@ Requires:
 - `uid` or `sub`: User ID
 - `role`: 'ROLE_MANAGER' for manager access
 
+## Sample Response
+
+```json
+{
+  "id": "NOT002",
+  "title": "New Appointment",
+  "message": "You have a new appointment",
+  "type": "APPOINTMENT",
+  "createdAt": "2025-03-16T18:58:12.397004",
+  "isRead": false,
+  "userID": "UID007"
+}
+```
+
 ## Deployment
 
 ```bash
 # Production-only deployment
 docker build -t noti-service .
-docker run -p 8080:8080 \
+docker run -p 3000:3000 \
   -e DATABASE_HOST=host \
   -e DATABASE_USER=user \
   -e DATABASE_PASSWORD=pass \
