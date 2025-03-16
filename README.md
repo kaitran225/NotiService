@@ -1,20 +1,19 @@
-# Notification Service API
+# Ultra-Lightweight Notification Service
 
-A lightweight Node.js API service that extracts user ID (uid) from JWT tokens and uses it to query notifications from an existing MySQL database created by a Spring Boot application.
+A minimal Node.js microservice that extracts user ID from JWT tokens and queries notifications from an existing MySQL database. Optimized to run in just 10-15MB of RAM.
 
 ## Features
 
-- JWT token verification and claim extraction
-- Notification retrieval based on user ID (uid) from JWT
-- Mark notifications as read
-- Integration with existing Spring Boot database
-- Lightweight design (< 10MB)
-- Production-ready configuration
+- JWT token verification
+- Notification retrieval by user ID
+- Ultra-lightweight (10-15MB RAM usage)
+- Extreme memory optimization
+- Production-ready
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- Existing MySQL database from Spring Boot application
+- Node.js (v14+)
+- Existing MySQL database
 
 ## Installation
 
@@ -30,46 +29,45 @@ A lightweight Node.js API service that extracts user ID (uid) from JWT tokens an
    ```
 
 3. Environment Variables:
-   The service is configured to use the following production environment variables:
    ```
    PORT
    DATABASE_HOST
-   DATABASE_NAME
+   DATABASE_DEFAULT
    DATABASE_PASSWORD
    DATABASE_PORT
    DATABASE_USER
    JWT_SECRET
    ```
-   
-   These should be set in your production environment. The service runs in production mode by default.
 
 4. Start the server:
    ```
    npm start
    ```
 
+## Memory Optimization
+
+Extreme memory optimization techniques:
+
+- Sets max old space size to just 15MB
+- Multi-stage Docker build for minimal footprint
+- Minimal middleware usage
+- Limited query results (20 notifications max)
+- Reduced buffer pool size
+- Minimal connection pool (2 connections max)
+- Stripped error messages
+- No default values for critical config
+- Graceful shutdown handling
+
 ## API Endpoints
 
 ### Notifications
 
-All endpoints require authentication with a JWT token in the Authorization header:
+Requires JWT token with uid claim:
 `Authorization: Bearer your_jwt_token`
 
-The JWT token must contain a `uid` claim that identifies the user.
-
-- **Get all notifications for the authenticated user**
+- **Get notifications**
   - `GET /api/notifications`
-  - Returns notifications for the user identified by the uid in the JWT token
-
-- **Mark a notification as read**
-  - `PATCH /api/notifications/:id`
-  - Marks the specified notification as read if it belongs to the user
-
-### Token Verification
-
-- **Verify Token**
-  - `GET /api/verify-token`
-  - Returns the decoded JWT token claims if the token is valid
+  - Returns up to 20 most recent notifications
 
 ### Health Check
 
@@ -114,18 +112,16 @@ public class Notifications {
 
 ## Docker Support
 
-To build and run the service using Docker:
-
 ```bash
-# Build the Docker image
+# Build
 docker build -t noti-service .
 
-# Run the container with environment variables
+# Run
 docker run -p 3000:3000 \
   -e DATABASE_HOST=your_db_host \
   -e DATABASE_USER=your_db_user \
   -e DATABASE_PASSWORD=your_db_password \
-  -e DATABASE_NAME=your_db_name \
+  -e DATABASE_DEFAULT=your_db_name \
   -e JWT_SECRET=your_jwt_secret \
   noti-service
 ```
