@@ -3,7 +3,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
 const express = require('express');
 const { port } = require('./config');
-const { testConnection, initDb } = require('./db');
+const { testConnection } = require('./db');
 const routes = require('./routes');
 
 // Create Express app
@@ -12,19 +12,6 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Simple health check endpoint
-app.get('/ping', (req, res) => {
-  res.json({ message: 'pong' });
-});
-
-// Token verification test endpoint
-app.get('/api/verify-token', require('./middleware').authenticateToken, (req, res) => {
-  res.json({ 
-    message: 'Token is valid',
-    user: req.user
-  });
-});
 
 // Register routes
 app.use(routes);
@@ -40,9 +27,6 @@ async function startServer() {
   try {
     // Test database connection
     await testConnection();
-    
-    // Initialize database tables
-    await initDb();
     
     // Start listening
     app.listen(port, () => {

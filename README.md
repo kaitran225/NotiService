@@ -1,20 +1,20 @@
 # Notification Service API
 
-A lightweight Node.js API service that extracts user ID (uid) from JWT tokens and uses it to query notifications from a MySQL database.
+A lightweight Node.js API service that extracts user ID (uid) from JWT tokens and uses it to query notifications from an existing MySQL database created by a Spring Boot application.
 
 ## Features
 
 - JWT token verification and claim extraction
 - Notification retrieval based on user ID (uid) from JWT
 - Mark notifications as read
-- MySQL database integration
+- Integration with existing Spring Boot database
 - Lightweight design (< 10MB)
 - Production-ready configuration
 
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- MySQL server
+- Existing MySQL database from Spring Boot application
 
 ## Installation
 
@@ -77,19 +77,39 @@ The JWT token must contain a `uid` claim that identifies the user.
   - `GET /ping`
   - Returns: `{ "message": "pong" }`
 
-## Database Schema
+## Existing Database Schema
 
-The service uses a simple database schema:
+The service integrates with an existing Spring Boot database schema:
 
-```sql
-CREATE TABLE notifications (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id VARCHAR(50) NOT NULL,
-  message TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX (user_id)
-)
+```java
+@Entity
+@Table(name = "Notifications")
+public class Notifications {
+    @Id
+    @Column(name = "NotificationID", length = 36)
+    private String notificationID;
+
+    @Column(name = "UserID", length = 36, nullable = false)
+    private String userID;
+
+    @Column(name = "Title", length = 255, nullable = false)
+    private String title;
+
+    @Column(name = "Message", columnDefinition = "TEXT", nullable = false)
+    private String message;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Type", nullable = false, length = 20)
+    private NotificationType type;
+
+    @Column(name = "IsRead")
+    private Boolean isRead;
+
+    @Column(name = "CreatedAt", updatable = false)
+    private LocalDateTime createdAt;
+    
+    // Additional fields and relationships...
+}
 ```
 
 ## Docker Support
