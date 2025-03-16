@@ -1,19 +1,14 @@
 {
   "name": "noti-service",
   "version": "1.0.0",
-  "description": "Lightweight notification service with JWT authentication and MySQL",
-  "main": "server.js",
+  "description": "Production-only notification microservice (2MB RAM)",
+  "main": "noti-service.js",
   "scripts": {
-    "start": "node --optimize_for_size --max_old_space_size=15 server.js",
-    "dev": "nodemon server.js"
+    "start": "node --optimize_for_size --max_old_space_size=2 noti-service.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.6.5",
-    "dotenv": "^16.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "mysql2": "^3.6.5"
   }
 } 

@@ -1,36 +1,20 @@
-# Use the smallest possible Node.js Alpine image
-FROM node:18-alpine AS build
-
-# Set NODE_ENV to production
-ENV NODE_ENV=production
-
-# Create app directory
-WORKDIR /usr/src/app
-
-# Copy package.json
-COPY package.json ./
-
-# Install only production dependencies
-RUN npm install --omit=dev --no-package-lock
-
-# Copy app source
-COPY . .
-
-# Create final image with minimal footprint
 FROM node:18-alpine
 
-# Set NODE_ENV to production
+# Force production mode
 ENV NODE_ENV=production
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy only necessary files from build stage
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/*.js ./
+# Copy only the single file and package.json
+COPY package.json noti-service.js ./
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Install production dependencies only
+RUN npm install --production --no-package-lock && \
+    npm cache clean --force
 
-# Command to run the application with extreme memory optimization
-CMD ["node", "--optimize_for_size", "--max_old_space_size=15", "server.js"] 
+# Expose the port
+EXPOSE 8080
+
+# Run with minimal memory
+CMD ["node", "--optimize_for_size", "--max_old_space_size=2", "noti-service.js"] 
