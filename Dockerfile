@@ -16,5 +16,5 @@ RUN npm install --production --no-package-lock && \
 # Expose the port
 EXPOSE 3000
 
-# Run with minimal memory
+# Run with minimal memory and enable Railway internal networking
 CMD ["node", "--optimize_for_size", "--max_old_space_size=17", "noti-service.js"] 

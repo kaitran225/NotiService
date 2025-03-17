@@ -15,6 +15,7 @@ const mysql = require('mysql2/promise');
 const config = {
   port: 3000,
   jwtSecret: process.env.JWT_SECRET,
+  springBootUrl: process.env.SPRING_SERVICE_URL || 'http://backend.railway.internal',
   db: {
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
@@ -33,6 +34,7 @@ const pool = mysql.createPool(config.db);
 
 // Create Express app
 const app = express();
+app.use(express.json());
 
 // JWT verification middleware
 const auth = async (req, res, next) => {
@@ -52,9 +54,22 @@ const auth = async (req, res, next) => {
 };
 
 // Health check endpoint
-app.get('/ping', (_, res) => res.json({m:'pong'}));
+app.get('/health', (_, res) => res.json({ status: 'UP' }));
 
-// Notifications endpoint
+// Redirect read/unread endpoints to Spring Boot service
+app.post('/api/notifications/:notificationId/read', (req, res) => {
+  res.redirect(307, `${config.springBootUrl}/api/notifications/${req.params.notificationId}/read${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`);
+});
+
+app.get('/api/notifications/read', (req, res) => {
+  res.redirect(`${config.springBootUrl}/api/notifications/read${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`);
+});
+
+app.get('/api/notifications/unread', (req, res) => {
+  res.redirect(`${config.springBootUrl}/api/notifications/unread${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`);
+});
+
+// Main notifications endpoint
 app.get('/api/notifications', auth, async (req, res) => {
   try {
     const tokenUid = req.user.uid;
@@ -72,7 +87,6 @@ app.get('/api/notifications', auth, async (req, res) => {
       [finalUserId]
     );
     
-    // Format the response to match the sample
     const formattedNotifications = notifications.map(notification => ({
       id: notification.id,
       title: notification.title,
@@ -89,12 +103,6 @@ app.get('/api/notifications', auth, async (req, res) => {
   }
 });
 
-// Redirect /notifications to /api/notifications
-app.get('/notifications', (req, res) => {
-  const url = `/api/notifications${req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''}`;
-  res.redirect(url);
-});
-
 // Start server
 async function start() {
   try {
@@ -106,11 +114,13 @@ async function start() {
     const PORT = process.env.PORT || config.port;
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Running on ${PORT}`);
+      console.log(`Spring Boot service URL: ${config.springBootUrl}`);
     });
     
     // Graceful shutdown
     process.on('SIGTERM', () => process.exit(0));
   } catch (e) {
+    console.error('Startup error:', e);
     process.exit(1);
   }
 }
