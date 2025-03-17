@@ -15,7 +15,7 @@ const mysql = require('mysql2/promise');
 const config = {
   port: 3000,
   jwtSecret: process.env.JWT_SECRET,
-  springBootUrl: 'backend.railway.internal:8080',
+  springBootUrl: 'http://backend.railway.internal:8080',
   db: {
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
